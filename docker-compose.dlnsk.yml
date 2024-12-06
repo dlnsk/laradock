@@ -94,3 +94,9 @@ services:
         - VIRTUAL_HOST=${PGA_VIRTUAL_HOST}
       depends_on:
         - nginx-proxy
+
+
+### PHP-FPM (changes) ##############################################
+    php-fpm:
+      volumes:
+        - ./php-fpm/xdebug3.ini:/usr/local/etc/php/conf.d/xdebug.ini
