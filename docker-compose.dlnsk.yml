@@ -9,3 +9,67 @@ services:
         - frontend
         - backend
 
+
+### Nginx-Proxy ############################################
+    nginx-proxy:
+      image: jwilder/nginx-proxy:alpine
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+        - ${DATA_PATH_HOST}/selfsigned/certs:/etc/nginx/certs
+        - ${NGINX_PROXY_CONF}:/etc/nginx/conf.d/my_proxy.conf:ro
+        - ${NGINX_PROXY_VHOST_PATH}:/etc/nginx/vhost.d:ro
+      networks:
+        - frontend
+        - backend
+
+
+### NGINX Server (changes) #########################################
+    nginx:
+      ports: !reset []
+      depends_on:
+        - nginx-proxy
+      environment:
+        - VIRTUAL_HOST=${NGINX_VIRTUAL_HOSTS}
+
+
+### Apache Server (changes) ########################################
+    apache2:
+      ports: !reset []
+      depends_on:
+        - nginx-proxy
+      environment:
+        - VIRTUAL_HOST=${NGINX_VIRTUAL_HOSTS}
+
+
+### phpMyAdmin (changes) ###########################################
+    phpmyadmin:
+      ports: !reset []
+      depends_on:
+        - nginx-proxy
+      environment:
+        - VIRTUAL_HOST=${PMA_VIRTUAL_HOST}
+        - PMA_HOST=db
+      links:
+        - "${PMA_DB_ENGINE}:db"
+
+
+### Adminer (changes) ###########################################
+    adminer:
+      ports: !reset []
+      environment:
+        - VIRTUAL_HOST=${ADM_VIRTUAL_HOST}
+      depends_on:
+        - "${ADM_DEFAULT_SERVER}"
+        - nginx-proxy
+
+
+### pgAdmin (changes) ##############################################
+    pgadmin:
+      ports: !reset []
+      environment:
+        - VIRTUAL_HOST=${PGA_VIRTUAL_HOST}
+      depends_on:
+        - nginx-proxy
