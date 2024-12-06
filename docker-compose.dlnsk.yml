@@ -10,6 +10,27 @@ services:
         - backend
 
 
+### MySQL for UnitTests ##################################
+    mysql-tests:
+      restart: always
+      build:
+        context: ./mysql
+        args:
+          - MYSQL_VERSION=${MYSQL_VERSION}
+      environment:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - TZ=${WORKSPACE_TIMEZONE}
+      tmpfs:
+        - /var/lib/mysql  # Creating the database in RAM
+      volumes:
+        - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      networks:
+        - backend
+
+
 ### Nginx-Proxy ############################################
     nginx-proxy:
       image: jwilder/nginx-proxy:alpine
