@@ -1,0 +1,11 @@
+services:
+
+### Net-Tools Container #######################################
+
+    net-tools:
+      build:
+        context: ./mysql
+      networks:
+        - frontend
+        - backend
+
